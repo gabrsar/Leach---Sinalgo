@@ -4,20 +4,17 @@ import sinalgo.nodes.messages.Message;
 
 public class MsgRefuseConnection extends Message {
 
-	
-	
-
 	@Override
 	public Message clone() {
 		// TODO Auto-generated method stub
-		
+
 		return this; // read-only policy
 	}
-	
+
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "MsgInvitacao()";
+		return "MsgRefuseConnection()";
 	}
 
 }
