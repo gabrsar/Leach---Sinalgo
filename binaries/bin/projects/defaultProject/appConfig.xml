@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sinalgo>
-	<ProjectSelector windowWidth="830" windowHeight="564" lastChosenProject="leach" windowPosX="-2" windowPosY="-6" isMaximized="true" selectedTab="3" />
-	<GUI windowWidth="670" windowHeight="714" windowPosX="-2" windowPosY="-6" isMaximized="true" ControlPanelExpandSimulation="true" ControlPanelShowFullViewPanel="false" ControlPanelShowTextPanel="true" ControlPanelShowProjectControl="true" RunOperationIsLimited="false" helpWindowWidth="530" helpWindowHeight="464" helpWindowPosX="200" helpWindowPosY="200" helpWindowIsMaximized="false" />
-	<RandomSeed seedFromPreviousRun="-5596098285465371734" />
+	<ProjectSelector windowWidth="830" windowHeight="564" lastChosenProject="leach" windowPosX="-2" windowPosY="-6" isMaximized="true" selectedTab="1" />
+	<GUI windowWidth="670" windowHeight="714" windowPosX="-2" windowPosY="-6" isMaximized="true" ControlPanelExpandSimulation="true" ControlPanelShowFullViewPanel="false" ControlPanelShowTextPanel="true" ControlPanelShowProjectControl="true" RunOperationIsLimited="false" helpWindowWidth="545" helpWindowHeight="446" helpWindowPosX="200" helpWindowPosY="200" helpWindowIsMaximized="false" />
+	<RandomSeed seedFromPreviousRun="-8893395128893632511" />
 	<App lastSelectedFileDirectory="/home/gabriel/workspaceJava/SINALGO/src/projects/leach/" checkForUpdatesAtStartup="false" updateCheckTimeStamp="1369177107634" runCmdLineArgs="leach " />
-	<GenNodesDlg numNodes="64" />
+	<GenNodesDlg numNodes="9" />
 </sinalgo>
 
