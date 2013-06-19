@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 
 import projects.leach.nodes.nodeImplementations.LeachNode;
 
+import sinalgo.nodes.Node;
 import sinalgo.runtime.AbstractCustomGlobal;
 import sinalgo.tools.Tools;
 
@@ -22,7 +23,7 @@ public class CustomGlobal extends AbstractCustomGlobal {
 	 * Variavel que ontrola o nivel de saida do simulador, quanto maior, mais
 	 * detalhado
 	 */
-	public static int OUTPUT_LEVEL = 1;
+	public static int OUTPUT_LEVEL = 0;
 
 	/**
 	 * Função que exibe a saida para relatórios da simulação com base no limite
@@ -31,16 +32,14 @@ public class CustomGlobal extends AbstractCustomGlobal {
 
 	public static void myOutput(int level, String texto) {
 
-		if (OUTPUT_LEVEL > level) {
-			String destaque = "|";
+		if (OUTPUT_LEVEL >= level) {
+			String destaque = "|-(" + level + ")-";
 
 			for (int d = 0; d < level; d++) {
 				destaque += "----";
 			}
 
-			if (level == 0 || level == 1) {
-				Tools.appendToOutput(texto + "\n");
-			}
+			Tools.appendToOutput(texto + "\n");
 
 			destaque += "> ";
 			texto = destaque + texto;
@@ -49,9 +48,12 @@ public class CustomGlobal extends AbstractCustomGlobal {
 		}
 	}
 
-	/**
-	 * Botão para definir o nivel de saida dos logs.
+	/*
+	 *  =======================================================================
+	 *  =         Opções de Controle do Projeto em Tempo de Execução          =
+	 *  =======================================================================
 	 */
+
 	@AbstractCustomGlobal.CustomButton(buttonText = "Nivel de Log")
 	public void definirNivelDeLog() {
 
@@ -63,6 +65,8 @@ public class CustomGlobal extends AbstractCustomGlobal {
 			int nivel = Integer.parseInt(answer);
 			if (nivel >= 0 && nivel <= 5) {
 				OUTPUT_LEVEL = nivel;
+
+				myOutput(0, " !!! NIVEL DE LOG MUDADO PARA " + nivel + " !!!");
 			} else {
 				JOptionPane.showMessageDialog(null, "Valor Inválido");
 			}

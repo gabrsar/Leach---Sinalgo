@@ -49,14 +49,13 @@ import sinalgo.nodes.Node;
 import sinalgo.nodes.messages.Inbox;
 import sinalgo.nodes.messages.Message;
 import sinalgo.runtime.Global;
-import sinalgo.tools.Tools;
 
 public class LeachNode extends Node {
 
 	// Constantes =============================================================
 
 	/** Número de rodadas do sinalgo que são um ROUND para o Leach */
-	public static int RODADAS_POR_ROUND = 400;
+	public static int RODADAS_POR_ROUND = 200;
 
 	/** Porcentagem de Cluster Heads desejada. */
 	public static Double P = 0.1;
@@ -167,16 +166,14 @@ public class LeachNode extends Node {
 	@Override
 	public void handleMessages(Inbox inbox) {
 
-		boolean erro = false;
-
 		// Processa todas as mensagens na fila.
 
 		while (inbox.hasNext()) {
 
 			Message msg = inbox.next();
 
-			CustomGlobal.myOutput(1, patente + " " + ID + "-> recebeu '" + msg.getClass().getSimpleName()
-					+ "' do host " + inbox.getSender().ID + ".");
+			CustomGlobal.myOutput(2, patente + " " + ID + " recebeu '" + msg.getClass().getSimpleName() + "' de "
+					+ patente + inbox.getSender().ID + ".");
 
 			// Mensagens da estação base --------------------------------------
 			if (msg instanceof MsgEstacaoBaseFarol) {
@@ -202,9 +199,6 @@ public class LeachNode extends Node {
 					handleMsgDados((MsgDados) msg, sender);
 				}
 				// ------------------------------------------------------------
-				else {
-					erro = true;
-				}
 
 			} else { // Nó COMUM
 
@@ -232,21 +226,19 @@ public class LeachNode extends Node {
 					handleMsgDados((MsgDados) msg, sender);
 				}
 				// ------------------------------------------------------------
-				else {
-					erro = true;
-				}
+
 			}
 
-			if (erro) {
-				CustomGlobal.myOutput(1, patente + " " + ID
-						+ ": Problema na interpretação da mensagem. Mensagem Corrompida.");
-			}
 		}
 	}
 
 	/** Função executada antes de cada passo da simulação por cada nó */
 	@Override
 	public void preStep() {
+
+		if (getEnergiaRestante() <= 100) {
+			vivo = false;
+		}
 
 		if (isVivo()) {
 
@@ -512,14 +504,14 @@ public class LeachNode extends Node {
 
 			double distanciaCHNovo = getPosition().squareDistanceTo(ch.getPosition());
 
-			CustomGlobal.myOutput(2, patente + ID + " comparou a distancia entre o CH " + getClusterHead().ID
+			CustomGlobal.myOutput(3, patente + ID + " comparou a distancia entre o CH " + getClusterHead().ID
 					+ " (atual: " + distanciaCHAtual + ") e o CH " + ch.ID + " (novo: " + distanciaCHNovo + ")");
 
 			if (distanciaCHNovo < distanciaCHAtual) {
 
 				double diferenca = distanciaCHNovo * 100 / distanciaCHAtual;
 
-				CustomGlobal.myOutput(2, patente + ID + " escolheu o CH " + ch.ID + " que está " + DF.format(diferenca)
+				CustomGlobal.myOutput(3, patente + ID + " escolheu o CH " + ch.ID + " que está " + DF.format(diferenca)
 						+ " mais perto.");
 
 				TimerDesconectarDeCH tdc = new TimerDesconectarDeCH(getClusterHead());
@@ -533,7 +525,7 @@ public class LeachNode extends Node {
 			} else {
 				double diferenca = distanciaCHAtual * 100 / distanciaCHNovo;
 
-				CustomGlobal.myOutput(2,
+				CustomGlobal.myOutput(3,
 						patente + ID + " manteve o CH " + getClusterHead().ID + " que está " + DF.format(diferenca)
 								+ " mais perto que a nova sugestão.");
 
@@ -571,7 +563,7 @@ public class LeachNode extends Node {
 	 */
 	public void handleMsgRefuseConnection(LeachNode ch) {
 
-		CustomGlobal.myOutput(4, patente + " conexão com CH " + ch.ID + " negada pelo mesmo.");
+		CustomGlobal.myOutput(3, patente + " conexão com CH " + ch.ID + " negada pelo mesmo.");
 
 		if (ch == getClusterHead()) {
 			setClusterHead(null);
@@ -711,7 +703,7 @@ public class LeachNode extends Node {
 	 */
 	private void transformarClusterHeadEmNo() {
 
-		CustomGlobal.myOutput(0, patente + ID + " voltando a ser nó normal.");
+		CustomGlobal.myOutput(1, patente + ID + " voltando a ser nó normal.");
 
 		transmitirDadosParaEB();
 
@@ -909,7 +901,7 @@ public class LeachNode extends Node {
 		}
 
 		if (Global.currentTime % INTERVALO_DE_COLETA == 0) {
-			if (consumirEnerigia(0.05)) {
+			if (consumirEnerigia(1.0)) {
 				buffer.append((int) (Math.random() * 10));
 			}
 		}

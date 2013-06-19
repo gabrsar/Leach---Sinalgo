@@ -11,6 +11,6 @@ public class TimerInvitarNos extends Timer {
 	public void fire() {
 		// TODO Auto-generated method stub
 		node.broadcast(new MsgInvitacao());
-		CustomGlobal.myOutput(2, ((LeachNode) node).getPatente() + " disparando invitação a todos os nós no alcance.");
+		CustomGlobal.myOutput(1, ((LeachNode) node).getPatente() + " disparando invitação a todos os nós no alcance.");
 	}
 }

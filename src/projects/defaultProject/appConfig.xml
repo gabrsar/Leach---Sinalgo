@@ -2,7 +2,7 @@
 <sinalgo>
 	<ProjectSelector windowWidth="830" windowHeight="564" lastChosenProject="leach" windowPosX="-2" windowPosY="-3" isMaximized="true" selectedTab="3" />
 	<GUI windowWidth="664" windowHeight="711" windowPosX="-2" windowPosY="-3" isMaximized="true" ControlPanelExpandSimulation="true" ControlPanelShowFullViewPanel="false" ControlPanelShowTextPanel="true" ControlPanelShowProjectControl="true" RunOperationIsLimited="false" helpWindowWidth="554" helpWindowHeight="425" helpWindowPosX="200" helpWindowPosY="200" helpWindowIsMaximized="false" />
-	<RandomSeed seedFromPreviousRun="24757879848484888" />
+	<RandomSeed seedFromPreviousRun="2310069826049262986" />
 	<App lastSelectedFileDirectory="/home/gabriel/workspaceJava/SINALGO/src/projects/leach/" checkForUpdatesAtStartup="false" updateCheckTimeStamp="1369177107634" runCmdLineArgs="leach " />
 	<GenNodesDlg numNodes="25" />
 </sinalgo>
