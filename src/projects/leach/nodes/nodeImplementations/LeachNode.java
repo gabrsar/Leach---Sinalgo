@@ -1,15 +1,7 @@
 /* ############################################################################
  * #                                                                          #
- * #    PROJETO - Implementação do Protocolo LEACH no simulador SINALGO       #
- * #    ---------------------------------------------------------------       #
- * #                                                                          #
- * #	Professor: Dr. Alex Roschild Pinto - Redes de Computadores            #
- * #    Alunos: Gabriel Henrique Martinez Saraiva        RA: 10139-7          #
- * #            Leonardo de Oliveira Santos	             RA: 10156-7          #
- * #                                                                          #
- * #    ---------------------------------------------------------------       #
- * #                                                                          #
  * #    Arquivo: LeachNode.java                                               #
+ * #                                                                          #
  * #    Função: Implementação do Nó LeachNode que é a base do protocolo,      #
  * #            podendo assumir a posição de Cluster Head, liderando um       #
  * #            cluster e fazendo a ponte de comunicação entre os seus        #
@@ -25,10 +17,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
-
 import projects.leach.CustomGlobal;
 import projects.leach.Funcao;
 import projects.leach.nodes.messages.MsgAfiliacaoCH;
@@ -43,37 +33,18 @@ import projects.leach.nodes.timers.TimerDesconectarDeCH;
 import projects.leach.nodes.timers.TimerInvitarNos;
 import projects.leach.nodes.timers.TimerLiberarNos;
 import projects.leach.nodes.timers.TimerSendMessage;
+import sinalgo.configuration.Configuration;
+import sinalgo.configuration.CorruptConfigurationEntryException;
 import sinalgo.configuration.WrongConfigurationException;
 import sinalgo.gui.transformation.PositionTransformation;
 import sinalgo.nodes.Node;
 import sinalgo.nodes.messages.Inbox;
 import sinalgo.nodes.messages.Message;
-import sinalgo.runtime.Global;
+import sinalgo.runtime.*;
 
 public class LeachNode extends Node {
 
-	// Constantes =============================================================
-
-	/** Número de rodadas do sinalgo que são um ROUND para o Leach */
-	public static int RODADAS_POR_ROUND = 200;
-
-	/** Porcentagem de Cluster Heads desejada. */
-	public static Double P = 0.1;
-
-	/** Número máximo de nós que um cluster pode ter. */
-	public static int NUMERO_MAXIMO_DE_NOS_POR_CLUSTER = RODADAS_POR_ROUND - 10;
-
-	/** Formatador de números para os nós. */
-	public static DecimalFormat DF = new DecimalFormat("###.0");
-
-	/** Cor do Cluster, definida pelo Cluster Head e copiada pelos nós. */
-	public final static Color BANDEIRA_LIVRE = Color.BLACK;
-
-	/** Número de rodadas entre cada coleta de informação */
-	public static int INTERVALO_DE_COLETA = 5;
-
-	/** Energia que cada nó tem no inicio da simulação. */
-	public static Double BATERIA_INICIAL = 1000000.0; // Joules
+	// Definições de projeto ==================================================
 
 	// Dados Compartilhados ===================================================
 
@@ -100,13 +71,13 @@ public class LeachNode extends Node {
 	private boolean configurado = false;
 
 	/** Bateria atual do nó. Quanto igual a 0 o nó é dito Morto. */
-	private Double bateria = BATERIA_INICIAL; // Joules
+	private Double bateria = CustomGlobal.BATERIA_INICIAL;
 
 	/** Indica quem é o lider do cluster que o nó participa. */
 	private LeachNode currentClusterHead = null;
 
 	/** Número de slots de tempo para a configuração TDMA. */
-	private int tamanhoTDMA = NUMERO_MAXIMO_DE_NOS_POR_CLUSTER;
+	private int tamanhoTDMA = CustomGlobal.NUMERO_MAXIMO_DE_NOS_POR_CLUSTER;
 
 	/** Slot que um nó irá utilizar para saber quando transmitir */
 	private int slotTDMA;
@@ -147,16 +118,16 @@ public class LeachNode extends Node {
 		patente = "Nó ";
 		CustomGlobal.myOutput(0, patente + ID + " criado.");
 
-		bateria = BATERIA_INICIAL;
+		bateria = CustomGlobal.BATERIA_INICIAL;
 
-		ultimoRoundComoCH = (int) (-1 / P);
+		ultimoRoundComoCH = (int) (-1 / CustomGlobal.PORCENTAGEM_CH);
 
 		slotTDMA = -1;
 		tamanhoTDMA = -1;
-		bandeira = BANDEIRA_LIVRE;
+		bandeira = CustomGlobal.BANDEIRA_LIVRE;
 
 		// Tenta iniciar os nós como cluster Heads aleatóriamente ao serem criados.
-		if (NUMEROS_DE_CH < NUMEROS_DE_NOS * P && Math.random() < P) {
+		if (NUMEROS_DE_CH < NUMEROS_DE_NOS * CustomGlobal.PORCENTAGEM_CH && Math.random() < CustomGlobal.PORCENTAGEM_CH) {
 			transformarNoEmClusterHead();
 		}
 
@@ -236,7 +207,7 @@ public class LeachNode extends Node {
 	@Override
 	public void preStep() {
 
-		if (getEnergiaRestante() <= 100) {
+		if (getEnergiaRestante() <= 0) {
 			vivo = false;
 		}
 
@@ -251,13 +222,20 @@ public class LeachNode extends Node {
 				if (ultimoRoundComoCH != getRound()) {
 					transformarClusterHeadEmNo();
 				}
-				if (Global.currentTime % (RODADAS_POR_ROUND / 4) == 0) {
+				if (Global.currentTime % (CustomGlobal.RODADAS_POR_ROUND / 4) == 0) {
 					transmitirDadosParaEB();
 				}
 			} else if (getFuncao() == Funcao.MembroDeCluster && isConfigurado()) {
+
+				if (!getClusterHead().isVivo()) {
+					setClusterHead(null);
+				}
+
 				// Testa se ja é o seu SLOT de transmissão...
 				if (Global.currentTime % tamanhoTDMA == slotTDMA) {
+
 					transmitirDadosAoCH();
+
 				}
 			}
 
@@ -287,29 +265,27 @@ public class LeachNode extends Node {
 		int fontSize;
 		String textoClasse;
 
-		if (getFuncao() == Funcao.ClusterHead) {
-			borda = 20;
-			fontSize = 18;
+		if (!isVivo()) {
+			borda = 1;
+			fontSize = 14;
+			textoClasse = "Morto " + ID;
+		} else if (getFuncao() == Funcao.ClusterHead) {
+
+			fontSize = 14;
 			textoClasse = "CH " + ID + " [" + listaDeNos.size() + "]";
 
 		} else {
-			borda = 6;
+
 			fontSize = 14;
 			textoClasse = "NO " + ID + " (" + buffer.length() + ")";
 		}
 
-		if (!isVivo()) {
-			borda = 1;
-			fontSize = 14;
-
-			textoClasse = "MORTO " + ID;
-
-		}
+		borda = 4;
 
 		font = new Font(null, 0, (int) (fontSize * pt.getZoomFactor()));
 		g.setFont(font);
 
-		String textoEnergia = DF.format(getBateriaPorcentagem()) + "%";
+		String textoEnergia = CustomGlobal.DF.format(getBateriaPorcentagem()) + "%";
 
 		FontMetrics fm = g.getFontMetrics(font);
 
@@ -325,10 +301,10 @@ public class LeachNode extends Node {
 
 		g.setColor(getBandeira());
 
-		int d = maior;
+		int ajuste = 6;
+		int d = maior + ajuste;
 
 		if (highlight) {
-			g.setColor(Color.RED);
 			borda += 6;
 		}
 
@@ -343,18 +319,17 @@ public class LeachNode extends Node {
 		if (isVivo()) {
 
 			if (getFuncao() == Funcao.ClusterHead) {
+
 				g.setColor(Color.BLACK);
-				g.fillOval(pt.guiX - d / 2 - meiaBorda - 1, pt.guiY - d / 2 - meiaBorda - 1, d + borda + 2, d + borda
-						+ 2);
+				g.fillOval(pt.guiX - (d / 2) - meiaBorda, pt.guiY - (d / 2) - meiaBorda, d + borda, d + borda);
 				g.setColor(getBandeira());
-				g.fillOval(pt.guiX - d / 2 - meiaBorda, pt.guiY - d / 2 - meiaBorda, d + borda, d + borda);
+				g.fillOval(pt.guiX - d / 2, pt.guiY - d / 2, d, d);
 
 			} else {
 				g.setColor(Color.BLACK);
-				g.fillRect(pt.guiX - d / 2 - meiaBorda - 1, pt.guiY - d / 2 - meiaBorda - 1, d + borda + 2, d + borda
-						+ 2);
+				g.fillRect(pt.guiX - (d / 2) - meiaBorda, pt.guiY - (d / 2) - meiaBorda, d + borda, d + borda);
 				g.setColor(getBandeira());
-				g.fillRect(pt.guiX - d / 2 - meiaBorda, pt.guiY - d / 2 - meiaBorda, d + borda, d + borda);
+				g.fillRect(pt.guiX - d / 2, pt.guiY - d / 2, d, d);
 			}
 
 		} else {
@@ -384,6 +359,10 @@ public class LeachNode extends Node {
 			g.drawString("=(", pt.guiX - wE / 2, pt.guiY + h - h / 8);
 
 		}
+
+	}
+
+	public void drawDetalhes(Graphics g, PositionTransformation pt, boolean highlight) {
 
 	}
 
@@ -421,7 +400,7 @@ public class LeachNode extends Node {
 	 */
 	public void handleMsgAckInvitacao(LeachNode sender) {
 
-		if (listaDeNos.size() < NUMERO_MAXIMO_DE_NOS_POR_CLUSTER) {
+		if (listaDeNos.size() < CustomGlobal.NUMERO_MAXIMO_DE_NOS_POR_CLUSTER) {
 			listaDeNos.add(sender);
 
 			MsgSetupTDMA m = new MsgSetupTDMA(tamanhoTDMA, listaDeNos.size());
@@ -461,7 +440,7 @@ public class LeachNode extends Node {
 	 */
 	public void handleMsgDeconexaoCH() {
 
-		setBandeira(BANDEIRA_LIVRE);
+		setBandeira(CustomGlobal.BANDEIRA_LIVRE);
 		setClusterHead(null);
 		configurado = false;
 		tamanhoTDMA = -1;
@@ -511,8 +490,9 @@ public class LeachNode extends Node {
 
 				double diferenca = distanciaCHNovo * 100 / distanciaCHAtual;
 
-				CustomGlobal.myOutput(3, patente + ID + " escolheu o CH " + ch.ID + " que está " + DF.format(diferenca)
-						+ " mais perto.");
+				CustomGlobal.myOutput(3,
+						patente + ID + " escolheu o CH " + ch.ID + " que está " + CustomGlobal.DF.format(diferenca)
+								+ " mais perto.");
 
 				TimerDesconectarDeCH tdc = new TimerDesconectarDeCH(getClusterHead());
 				tdc.startRelative(1, this);
@@ -525,9 +505,8 @@ public class LeachNode extends Node {
 			} else {
 				double diferenca = distanciaCHAtual * 100 / distanciaCHNovo;
 
-				CustomGlobal.myOutput(3,
-						patente + ID + " manteve o CH " + getClusterHead().ID + " que está " + DF.format(diferenca)
-								+ " mais perto que a nova sugestão.");
+				CustomGlobal.myOutput(3, patente + ID + " manteve o CH " + getClusterHead().ID + " que está "
+						+ CustomGlobal.DF.format(diferenca) + " mais perto que a nova sugestão.");
 
 			}
 		}
@@ -587,17 +566,38 @@ public class LeachNode extends Node {
 
 		int r = getRound();
 
-		if ((r - ultimoRoundComoCH) <= (1 / P)) {
+		if ((r - ultimoRoundComoCH) <= (1 / CustomGlobal.PORCENTAGEM_CH)) {
 			return 0;
 		}
 
-		return P / (1 - P * (r % (1 / P)));
+		return CustomGlobal.PORCENTAGEM_CH
+				/ (1 - CustomGlobal.PORCENTAGEM_CH * (r % (1 / CustomGlobal.PORCENTAGEM_CH)));
+	}
+
+	public boolean myBroadcast(Message m) {
+
+		double rMax = 0;
+
+		try {
+			rMax = Configuration.getDoubleParameter("GeometricNodeCollection/rMax");
+		} catch (CorruptConfigurationEntryException e) {
+			Main.fatalError(e.getMessage());
+		}
+
+		if (consumirEnerigia(m.toString().length() * rMax)) {
+			broadcast(m);
+			return true;
+		}
+
+		return false;
+
 	}
 
 	/**
 	 * Função que envia mensagens para um determinado nó consumindo energia com
 	 * base na distancia do destino e no tamanho da mensagem
 	 */
+
 	public boolean mySend(Message m, Node target) {
 		// Cálcula a distancia e a potencia necessária para enviar a mensagem
 
@@ -612,8 +612,10 @@ public class LeachNode extends Node {
 			return true;
 
 		} else {
-			CustomGlobal.myOutput(4, patente + " " + ID + " possui apenas " + DF.format(getEnergiaRestante()) + " de "
-					+ DF.format(custo) + " necessários para enviar mensagem. Mensagem NÃO ENVIADA!");
+			CustomGlobal.myOutput(4,
+					patente + " " + ID + " possui apenas " + CustomGlobal.DF.format(getEnergiaRestante()) + " de "
+							+ CustomGlobal.DF.format(custo)
+							+ " necessários para enviar mensagem. Mensagem NÃO ENVIADA!");
 			return false;
 		}
 	}
@@ -621,7 +623,7 @@ public class LeachNode extends Node {
 	/** Define o nó como morto */
 	public void matarNo() {
 
-		setBandeira(BANDEIRA_LIVRE);
+		setBandeira(CustomGlobal.BANDEIRA_LIVRE);
 		tamanhoTDMA = -1;
 		slotTDMA = -1;
 		currentClusterHead = null;
@@ -648,9 +650,9 @@ public class LeachNode extends Node {
 	/** Cálcula o custo da transmissão de uma mensagem até um nó */
 	public double getCustoTransmissao(int tamanhoMsg, Node destino) {
 
-		Double custoEnergeticoPorBit = getPosition().squareDistanceTo(destino.getPosition());
+		Double custoEnergeticoPorBit = getPosition().distanceTo(destino.getPosition());
 
-		return custoEnergeticoPorBit * tamanhoMsg * 1 / 1000;
+		return custoEnergeticoPorBit * tamanhoMsg * 1;
 
 	}
 
@@ -686,7 +688,7 @@ public class LeachNode extends Node {
 
 		bufferCH = new StringBuilder();
 
-		tamanhoTDMA = NUMERO_MAXIMO_DE_NOS_POR_CLUSTER;
+		tamanhoTDMA = CustomGlobal.NUMERO_MAXIMO_DE_NOS_POR_CLUSTER;
 
 		// Agenda invitação dos nós para o Cluster Head.
 		TimerInvitarNos tin = new TimerInvitarNos();
@@ -718,7 +720,7 @@ public class LeachNode extends Node {
 		// Desconfigura o cluster head
 		setClusterHead(null);
 		setListaDeNos(null);
-		setBandeira(BANDEIRA_LIVRE);
+		setBandeira(CustomGlobal.BANDEIRA_LIVRE);
 		tamanhoTDMA = -1;
 		slotTDMA = -1;
 
@@ -750,12 +752,12 @@ public class LeachNode extends Node {
 	}
 
 	public Double getBateriaPorcentagem() {
-		return bateria / BATERIA_INICIAL * 100;
+		return bateria / CustomGlobal.BATERIA_INICIAL * 100;
 	}
 
 	public void transmitirDadosAoCH() {
 
-		if (!(slotTDMA == -1 || tamanhoTDMA == -1)) {
+		if (!(slotTDMA == -1 || tamanhoTDMA == -1) && getClusterHead().isVivo()) {
 
 			MsgDados m = new MsgDados(getBuffer());
 
@@ -794,9 +796,17 @@ public class LeachNode extends Node {
 			JOptionPane.showMessageDialog(null, "Valor inválido!");
 
 		} else {
-			bateria = BATERIA_INICIAL * qtd / 100;
+			bateria = CustomGlobal.BATERIA_INICIAL * qtd / 100;
 		}
 
+	}
+
+	public void setBateria(double energia) {
+		bateria = energia;
+
+		if (bateria > 0) {
+			vivo = true;
+		}
 	}
 
 	@NodePopupMethod(menuText = "Exibir dados em Buffer")
@@ -862,7 +872,7 @@ public class LeachNode extends Node {
 		if (currentClusterHead != null) {
 			setBandeira(getClusterHead().getBandeira());
 		} else {
-			setBandeira(BANDEIRA_LIVRE);
+			setBandeira(CustomGlobal.BANDEIRA_LIVRE);
 		}
 	}
 
@@ -880,7 +890,7 @@ public class LeachNode extends Node {
 		if (bateria - j >= 0) {
 			bateria -= j;
 
-			CustomGlobal.myOutput(4, patente + " " + ID + " consumindo " + DF.format(j) + " J");
+			CustomGlobal.myOutput(5, patente + " " + ID + " consumindo " + CustomGlobal.DF.format(j) + " energia.");
 			return true;
 		}
 
@@ -900,7 +910,7 @@ public class LeachNode extends Node {
 			dadosEnviados = false;
 		}
 
-		if (Global.currentTime % INTERVALO_DE_COLETA == 0) {
+		if (Global.currentTime % CustomGlobal.INTERVALO_DE_COLETA == 0) {
 			if (consumirEnerigia(1.0)) {
 				buffer.append((int) (Math.random() * 10));
 			}
@@ -925,12 +935,12 @@ public class LeachNode extends Node {
 
 	public int getRound() {
 
-		return (int) Global.currentTime / RODADAS_POR_ROUND;
+		return (int) Global.currentTime / CustomGlobal.RODADAS_POR_ROUND;
 
 	}
 
 	public boolean isInicioDeRound() {
-		return Global.currentTime % RODADAS_POR_ROUND == 0;
+		return Global.currentTime % CustomGlobal.RODADAS_POR_ROUND == 0;
 	}
 
 	@Override
@@ -940,19 +950,19 @@ public class LeachNode extends Node {
 		me += "SIMULAÇÃO DO LEACH - STATUS DE NÓ\n";
 		me += "Leach Node ID:		" + ID + "\n";
 		me += "Função:				" + getFuncao() + "\n";
-		//me += "Estado:				" + (isVivo() ? "vivo" : "morto") + "\n";
-		//me += "Cluster Head:		" + currentClusterHead != null ? currentClusterHead.ID : "NENHUM" + "\n";
-		//me += "Energia atual:		" + getBateriaPorcentagem() + " (" + getEnergiaRestante() + ")" + "\n";
-		//me += "Estação Base:		" + estacaoBase != null ? estacaoBase.ID : "NÃO DEFINIDO AINDA" + "\n";
-		//me += "Buffer interno:		" + "Tamanho: " + buffer.length() + " '" + buffer + "'" + "\n";
-		//me += "Ultimo Round como CH:" + ultimoRoundComoCH + "\n";
-		//if (getFuncao() == Funcao.ClusterHead) {
-		//		me += "Buffer CH:			" + "Tamanho: " + bufferCH.length() + " '" + bufferCH + "'" + "\n";
-		//	me += "Tamanho do Cluster:	" + listaDeNos.size();
-		//} else if (getFuncao() == Funcao.MembroDeCluster) {
-		//	me += "TDMA - Tamanho:		" + tamanhoTDMA + "\n";
-		//	me += "TDMA - Slot:			" + slotTDMA + "\n";
-		//}
+		me += "Estado:				" + (isVivo() ? "vivo" : "morto") + "\n";
+		me += "Cluster Head:		" + (currentClusterHead == null ? "NENHUM" : currentClusterHead.ID) + "\n";
+		me += "Energia atual:		" + getBateriaPorcentagem() + "% (" + getEnergiaRestante() + ")" + "\n";
+		me += "Estação Base:		" + (estacaoBase == null ? "NÃO DEFINIDO AINDA" : estacaoBase.ID) + "\n";
+		me += "Buffer interno:		" + "Tamanho: " + buffer.length() + " '" + buffer + "'" + "\n";
+		me += "Ultimo Round como CH:" + ultimoRoundComoCH + "\n";
+		if (getFuncao() == Funcao.ClusterHead) {
+			me += "Buffer CH:			" + "Tamanho: " + bufferCH.length() + " '" + bufferCH + "'" + "\n";
+			me += "Tamanho do Cluster:	" + listaDeNos.size();
+		} else if (getFuncao() == Funcao.MembroDeCluster) {
+			me += "TDMA - Tamanho:		" + tamanhoTDMA + "\n";
+			me += "TDMA - Slot:			" + slotTDMA + "\n";
+		}
 
 		return me;
 	}

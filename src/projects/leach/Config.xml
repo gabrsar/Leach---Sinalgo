@@ -225,11 +225,37 @@
 
 	</Framework>
 	<Custom>
-<MessageTransmission ConstantTime="10"/>
-
-<Node defaultSize="1"/>
-
-<GeometricNodeCollection rMax="2000"/>
-																																			</Custom>
+	
+		<!-- Número de Rounds para transmitir uma mensagem - Esse valor é apenas para "exibição" e entendimento do que acontece na simulação --> 
+		<MessageTransmission ConstantTime="10"/>
+		
+		<!-- Tamanho base do desenho dos Nós -->
+		<Node defaultSize="10"/>
+		
+		<!-- Distancia Máxima de Conexão entre um Nó e outro nó qualquer -->
+		<GeometricNodeCollection rMax="2000"/>
+				
+		<!-- Número de rodadas do sinalgo que são um ROUND para o Leach -->
+		<LeachNode RodadasPorRound="500" />
+	
+		<!-- Porcentagem de Cluster Heads desejada. -->
+		<LeachNode PorcentagemDeCH="0.1" />
+	
+		<!-- Número máximo de nós que um cluster pode ter. -->
+		<LeachNode NumeroMaximoDeNosPorCluster="200" />
+	
+		<!-- Número de rodadas entre cada coleta de informação -->
+		<LeachNode IntervaloDeColetaDeDados="5" />
+	
+		<!-- Energia que cada nó tem no inicio da simulação. (Unidade Arbritraria) -->
+		<LeachNode BateriaInicial="1000000" />
+	
+		<!-- Váriavel que controla como a simulação será exibida -->
+		<LeachNode DesenharDetalhesDosNos="false" />
+	
+		<!-- Variavel que ontrola o nivel de saida dos dados -->
+		<Simulacao NivelDeInformacao="0" />
+		
+			</Custom>
 </Document>
 

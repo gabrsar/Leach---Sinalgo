@@ -1,58 +1,53 @@
+/* ############################################################################
+ * #                                                                          #
+ * #    PROJETO - Implementação do Protocolo LEACH no simulador SINALGO       #
+ * #    ---------------------------------------------------------------       #
+ * #                                                                          #
+ * #	Professor: Dr. Alex Sandro Roschildt Pinto                            #
+ * #    Matéria: Redes de Computadores                                        #
+ * #                                                                          #
+ * #    Alunos: Gabriel Henrique Martinez Saraiva        RA: 10139-7          #
+ * #            Leonardo de Oliveira Santos	             RA: 10156-7          #
+ * #            Igor Stefani Buttarelo	             	 RA: 00002-1 AC       #
+ * #                                                                          #
+ * #    ---------------------------------------------------------------       #
+ * #                                                                          #
+ * ############################################################################
+ * 
+ * 
+ * ############################################################################
+ * #                                                                          #
+ * #   Arquivo: LeachEdge.java                                                #
+ * #                                                                          #
+ * #   Responsavel por definir se uma conexão será exibida ou não.            #
+ * #   Isso é necessário pois os nós só se comunicam caso exista a conexão    #
+ * #   entre eles. E todos os cluster heads necessitam se comunicar com todos #
+ * #   os nós para poder fazer o broadcast de suas mensagens, conexões essas  #
+ * #   que não devem ser "mostradas" para não confundir o usuário             #
+ * #                                                                          #
+ * ############################################################################
+ * 
+ */
+
 package projects.leach.nodes.edges;
 
-import java.awt.Color;
 import java.awt.Graphics;
-
 import projects.leach.Funcao;
 import projects.leach.nodes.nodeImplementations.EstacaoBaseNode;
 import projects.leach.nodes.nodeImplementations.LeachNode;
-
-import sinalgo.gui.helper.Arrow;
 import sinalgo.gui.transformation.PositionTransformation;
-
-import sinalgo.nodes.Position;
 import sinalgo.nodes.edges.Edge;
 
 public class LeachEdge extends Edge {
 
-	// Desativada por ser melhor utilizar a o modo simples. (Arcos em preto)
-	//	public void drawLeachToLeach(Graphics g, PositionTransformation pt) {
-	//
-	//		LeachNode start = (LeachNode) startNode;
-	//		LeachNode end = (LeachNode) endNode;
-	//
-	//		Color bandeira = end.getBandeira();
-	//
-	//		Position p1 = start.getPosition();
-	//		pt.translateToGUIPosition(p1);
-	//
-	//		int fromX = pt.guiX, fromY = pt.guiY; 
-	//
-	//		Position p2 = end.getPosition();
-	//		pt.translateToGUIPosition(p2);
-	//
-	//		if ((this.numberOfMessagesOnThisEdge == 0) && (this.oppositeEdge != null)
-	//				&& (this.oppositeEdge.numberOfMessagesOnThisEdge > 0)) {
-	//			// only draws the arrowHead (if drawArrows is true)
-	//			Arrow.drawArrowHead(fromX, fromY, pt.guiX, pt.guiY, g, pt, getColor());
-	//			if (numberOfMessagesOnThisEdge > 0) {
-	//				Arrow.drawArrowHead(fromX, fromY, pt.guiX, pt.guiY, g, pt, getColor());
-	//			} else {
-	//				Arrow.drawArrowHead(fromX, fromY, pt.guiX, pt.guiY, g, pt, bandeira);
-	//			}
-	//		} else {
-	//
-	//			if (numberOfMessagesOnThisEdge > 0) {
-	//				Arrow.drawArrow(fromX, fromY, pt.guiX, pt.guiY, g, pt, getColor());
-	//			} else {
-	//				Arrow.drawArrow(fromX, fromY, pt.guiX, pt.guiY, g, pt, bandeira);
-	//			}
-	//		}
-	//	}
-
 	@Override
 	public void draw(Graphics g, PositionTransformation pt) {
 		// TODO Auto-generated method stub
+
+		if (true) {
+			super.draw(g, pt);
+			return;
+		}
 
 		if (startNode instanceof LeachNode && endNode instanceof LeachNode) {
 

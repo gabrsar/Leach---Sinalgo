@@ -1,1 +1,25 @@
-Implementação do Protocolo LEACH
+PROJETO - Implementação do Protocolo LEACH no simulador SINALGO
+
+Universidade Estadual Paulista - Campus de São José do Rio Preto - IBILCE
+
+Professor:
+---> Dr. Alex Sandro Roschildt Pinto
+Matéria:
+---> Redes de Computadores
+
+
+Alunos: 
+---> Gabriel Henrique Martinez Saraiva ... extremez3r0@gmail.com 
+---> Leonardo de Oliveira Santos ......... leonardosantos@live.com
+---> Igor Stefani Buttarelo .............. igor_butta@hotmail.com
+
+Instruções para utilização:
+-> Adicione pelo menos um LeachNode.
+-> Adicione uma estação base.
+-> Inicie a simulação.
+
+Obs:
+-> Os nós possuem opções acessadas com o botão direito.
+-> É possivel alterar algumas opções na aba de configurações do projeto.
+-> Existem botões que são utilizado para definir configurações em tempo execução no painel de Simulação.
+	

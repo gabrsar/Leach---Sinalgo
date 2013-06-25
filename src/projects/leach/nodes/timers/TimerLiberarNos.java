@@ -1,6 +1,7 @@
 package projects.leach.nodes.timers;
 
 import projects.leach.nodes.messages.MsgClusterHeadDesconectado;
+import projects.leach.nodes.nodeImplementations.LeachNode;
 import sinalgo.nodes.timers.Timer;
 
 public class TimerLiberarNos extends Timer {
@@ -9,7 +10,7 @@ public class TimerLiberarNos extends Timer {
 	public void fire() {
 		// TODO Auto-generated method stub
 
-		node.broadcast(new MsgClusterHeadDesconectado());
+		((LeachNode) node).myBroadcast(new MsgClusterHeadDesconectado());
 
 	}
 }
