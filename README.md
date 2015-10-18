@@ -1,4 +1,4 @@
-# Low Energy Adaptive Clustering Hierarchy on Sinalgo.
+# Low Energy Adaptive Clustering Hierarchy on Sinalgo -- Not finished
 
 An implementation of LEACH algorithm using Sinalgo framework.
 
@@ -8,5 +8,4 @@ After the discipline tried to implement some new features and my time was short 
 
 Forgive me for the mess, I was beginning to use git.
 
-The project code is in src/projects/leach or 
-https://github.com/gabrsar/Leach---Sinalgo/tree/master/src/projects/leach
+The project code is in src/projects/leach.
